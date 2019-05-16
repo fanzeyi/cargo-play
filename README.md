@@ -54,6 +54,13 @@ $ cargo play serde_json.rs
 Please call "John Doe" at the number "+44 1234567"
 ```
 
+## To Do
+
+- [ ] Editor plugins
+  - [ ] Vim
+  - [ ] VS Code
+- [ ] Toolchain supports
+
 ## Acknowledgements
 
 This project is inspired by [play.rust-lang.org](https://play.rust-lang.org) and [RustPlayground](https://github.com/cmyr/RustPlayground).
