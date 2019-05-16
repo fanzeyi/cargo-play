@@ -1,0 +1,15 @@
+[package]
+name = "cargo-play"
+version = "0.1.0"
+authors = ["Zeyi Fan <cargo@zeyi.fan>"]
+edition = "2018"
+
+[dependencies]
+structopt = "*"
+syn = { version = "*", features = ["full"] }
+failure = "*"
+toml = "*"
+sha1 = "0.6"
+base64 = "*"
+log = "0.4"
+serde = { version = "*", features = ["derive"] }
