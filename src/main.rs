@@ -6,6 +6,7 @@ mod opt;
 
 use log::debug;
 use opt::Opt;
+use pathdiff::diff_paths;
 use std::env::temp_dir;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -73,23 +74,39 @@ fn write_cargo_toml(
     Ok(())
 }
 
-fn copy_sources(dir: &PathBuf, sources: &Vec<PathBuf>) -> Result<(), CargoPlayError> {
-    let src = dir.join("src");
-    let _ = std::fs::create_dir(&src);
-    let mut first = true;
+/// Copy all the passed in sources to the temporary directory. The first in the list will be
+/// treated as main.rs.
+fn copy_sources(temp: &PathBuf, sources: &Vec<PathBuf>) -> Result<(), CargoPlayError> {
+    let destination = temp.join("src");
+    std::fs::create_dir_all(&destination)?;
 
-    sources.iter().for_each(|file| {
-        let filename = file.file_name().unwrap();
-        let to = if first {
-            first = true;
-            src.join("main.rs")
-        } else {
-            src.join(filename)
-        };
+    let mut files = sources.iter();
+    let base = if let Some(first) = files.next() {
+        let dst = destination.join("main.rs");
+        debug!("Copying {:?} => {:?}", first, dst);
+        std::fs::copy(first, dst)?;
+        first.parent()
+    } else {
+        None
+    };
 
-        debug!("Copying {:?} => {:?}", file, to);
-        std::fs::copy(file, to).unwrap();
-    });
+    if let Some(base) = base {
+        files
+            .map(|file| -> Result<(), CargoPlayError> {
+                let part =
+                    diff_paths(file, base).ok_or(CargoPlayError::DiffPathError(file.to_owned()))?;
+                let dst = destination.join(part);
+
+                // ensure the parent folder all exists
+                if let Some(parent) = dst.parent() {
+                    let _ = std::fs::create_dir_all(&parent);
+                }
+
+                debug!("Copying {:?} => {:?}", file, dst);
+                std::fs::copy(file, dst).map(|_| ()).map_err(From::from)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+    }
 
     Ok(())
 }
@@ -105,23 +122,14 @@ fn run_cargo_build(project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
         .map_err(From::from)
 }
 
-/// Remove the first element if it is "play" for cargo compatibility
-fn trim_first_play<'a, T: Iterator<Item = U> + 'a, U: Into<String> + Clone + 'a>(
-    mut input: T,
-) -> Box<dyn Iterator<Item = T::Item> + 'a> {
-    if let Some(first) = input.nth(0) {
-        if first.clone().into() == "play" {
-            Box::new(input)
-        } else {
-            Box::new(std::iter::once(first).chain(input))
-        }
-    } else {
-        Box::new(input)
-    }
-}
-
 fn main() -> Result<(), CargoPlayError> {
-    let opt = Opt::from_iter(trim_first_play(std::env::args()));
+    let args = std::env::args().collect::<Vec<_>>();
+    let opt = if args[1] != "play" {
+        Opt::from_iter(args.into_iter())
+    } else {
+        Opt::from_iter(args[1..].into_iter())
+    };
+
     let files = parse_inputs(&opt.src)?;
     let dependencies = extract_headers(&files);
     let temp = mktemp(opt.temp_dirname());
@@ -138,23 +146,6 @@ fn main() -> Result<(), CargoPlayError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_trim_first_play() {
-        let testcases = vec![
-            (vec!["play", "test1"], vec!["test1"]),
-            (vec!["play", "play", "test2"], vec!["play", "test2"]),
-            (vec!["test3"], vec!["test3"]),
-            (vec![], vec![]),
-        ];
-
-        for (input, expected) in testcases {
-            assert_eq!(
-                trim_first_play(input.into_iter()).collect::<Vec<&str>>(),
-                expected
-            );
-        }
-    }
 
     #[test]
     fn test_extract_headers() {

@@ -15,7 +15,7 @@ beginning of your file with the prefix `//#`. It accepts the same TOML syntax as
 
 ## Example
 
-```
+```rust
 $ cat serde_json.rs
 //# serde_json = "*"
 
@@ -53,6 +53,30 @@ $ cargo play serde_json.rs
      Running `/var/folders/nq/608n9lcx02n_mzx33_3z5wyw0000gn/T/cargo-play.GVzCg8yviQmd_EUq3Xti4-ZbKRs/target/debug/gvzcg8yviqmd_euq3xti4-zbkrs`
 Please call "John Doe" at the number "+44 1234567"
 ```
+
+It also supports running multiple files at the same time:
+
+```rust
+$ cat tests/multi/entry.rs
+mod hello;
+
+fn main() {
+    println!("Hello {}", hello::world());
+}
+$ cat tests/multi/hello.rs
+pub fn world() -> String {
+    "World".into()
+}
+$ cargo play tests/multi/*
+   Compiling qvsjdw04fxh5cgpdkdvg6ite_ak v0.1.0 (/var/folders/nq/608n9lcx02n_mzx33_3z5wyw0000gn/T/cargo-play.QVSJDw04FxH5CGpDkDvg6itE_ak)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.30s
+     Running `/var/folders/nq/608n9lcx02n_mzx33_3z5wyw0000gn/T/cargo-play.QVSJDw04FxH5CGpDkDvg6itE_ak/target/debug/qvsjdw04fxh5cgpdkdvg6ite_ak`
+Hello World
+```
+
+Files under sub-directories will be copied and placed relatively to the first file. Try:
+
+    cargo play tests/subdirs/**/*.rs
 
 ## To Do
 

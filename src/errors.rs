@@ -8,6 +8,13 @@ pub enum CargoPlayError {
 
     #[fail(display = "Parsing error: {:?}", _0)]
     ParseError(String),
+
+    #[fail(display = "Unable to compute relative path of {:?}", _0)]
+    DiffPathError(std::path::PathBuf),
+
+    /// Helper error kind only exists for development purpose.
+    #[fail(display = "{:?}", _0)]
+    _Message(String),
 }
 
 impl From<std::io::Error> for CargoPlayError {
@@ -19,5 +26,9 @@ impl From<std::io::Error> for CargoPlayError {
 impl CargoPlayError {
     pub fn from_serde<T: Debug>(value: T) -> Self {
         Self::ParseError(format!("{:?}", value))
+    }
+
+    pub fn _message<T: Into<String>>(value: T) -> Self {
+        Self::_Message(value.into())
     }
 }
