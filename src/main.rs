@@ -105,12 +105,23 @@ fn run_cargo_build(project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
         .map_err(From::from)
 }
 
+/// Remove the first element if it is "play" for cargo compatibility
+fn trim_first_play<'a, T: Iterator<Item = U> + 'a, U: Into<String> + Clone + 'a>(
+    mut input: T,
+) -> Box<dyn Iterator<Item = T::Item> + 'a> {
+    if let Some(first) = input.nth(0) {
+        if first.clone().into() == "play" {
+            Box::new(input)
+        } else {
+            Box::new(std::iter::once(first).chain(input))
+        }
+    } else {
+        Box::new(input)
+    }
+}
+
 fn main() -> Result<(), CargoPlayError> {
-    let opt = Opt::from_iter(
-        std::env::args()
-            .skip_while(|s| s != "play")
-            .collect::<Vec<String>>(),
-    );
+    let opt = Opt::from_iter(trim_first_play(std::env::args()));
     let files = parse_inputs(&opt.src)?;
     let dependencies = extract_headers(&files);
     let temp = mktemp(opt.temp_dirname());
@@ -127,6 +138,23 @@ fn main() -> Result<(), CargoPlayError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_trim_first_play() {
+        let testcases = vec![
+            (vec!["play", "test1"], vec!["test1"]),
+            (vec!["play", "play", "test2"], vec!["play", "test2"]),
+            (vec!["test3"], vec!["test3"]),
+            (vec![], vec![]),
+        ];
+
+        for (input, expected) in testcases {
+            assert_eq!(
+                trim_first_play(input.into_iter()).collect::<Vec<&str>>(),
+                expected
+            );
+        }
+    }
 
     #[test]
     fn test_extract_headers() {
