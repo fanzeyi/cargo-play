@@ -1,11 +1,13 @@
 [package]
 name = "cargo-play"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Zeyi Fan <cargo@zeyi.fan>"]
 edition = "2018"
 description = "Run your Rust code file without manually setting up a Cargo project."
 license = "MIT"
 homepage = "https://github.com/fanzeyi/cargo-play"
+readme = "README.md"
+categories = ["development-tools::build-utils", "development-tools::cargo-plugins"]
 
 [dependencies]
 structopt = "0.2"
