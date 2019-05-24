@@ -124,6 +124,12 @@ fn run_cargo_build(project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
 
 fn main() -> Result<(), CargoPlayError> {
     let args = std::env::args().collect::<Vec<_>>();
+
+    if args.len() < 2 {
+        Opt::clap().print_help().unwrap_or(());
+        return Ok(());
+    }
+
     let opt = if args[1] != "play" {
         Opt::from_iter(args.into_iter())
     } else {

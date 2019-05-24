@@ -8,9 +8,9 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 #[structopt(name = "cargo-play", about = "Single file cargo runner.")]
 pub(crate) struct Opt {
-    #[structopt(short = "d", long = "debug")]
+    #[structopt(short = "d", long = "debug", hidden = true)]
     debug: bool,
-    #[structopt(short = "t", long = "toolchain")]
+    #[structopt(short = "t", long = "toolchain", hidden = true)]
     toolchain: Option<String>,
     #[structopt(
         parse(try_from_os_str = "osstr_to_abspath"),
