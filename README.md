@@ -85,9 +85,10 @@ Files under sub-directories will be copied and placed relatively to the first fi
 ## To Do
 
 - [ ] Editor plugins
-  - [ ] Vim
+  - [x] Vim
   - [ ] VS Code
 - [ ] Toolchain supports
+- [x] Edition Support
 
 ## Editor Support
 
