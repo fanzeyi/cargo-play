@@ -2,6 +2,7 @@ use serde::Serialize;
 use toml::value::Table;
 
 use crate::errors::CargoPlayError;
+use crate::opt::RustEdition;
 
 #[derive(Clone, Debug, Serialize)]
 struct CargoPackage {
@@ -11,11 +12,11 @@ struct CargoPackage {
 }
 
 impl CargoPackage {
-    fn new(name: String) -> Self {
+    fn new(name: String, edition: RustEdition) -> Self {
         Self {
             name: name.to_lowercase(),
             version: "0.1.0".into(),
-            edition: "2018".into(),
+            edition: edition.into(),
         }
     }
 }
@@ -27,7 +28,11 @@ pub(crate) struct CargoManifest {
 }
 
 impl CargoManifest {
-    pub(crate) fn new(name: String, dependencies: Vec<String>) -> Result<Self, CargoPlayError> {
+    pub(crate) fn new(
+        name: String,
+        dependencies: Vec<String>,
+        edition: RustEdition,
+    ) -> Result<Self, CargoPlayError> {
         let dependencies = dependencies
             .into_iter()
             .map(|dependency| dependency.parse::<toml::Value>())
@@ -45,7 +50,7 @@ impl CargoManifest {
             .collect();
 
         Ok(Self {
-            package: CargoPackage::new(name),
+            package: CargoPackage::new(name, edition),
             dependencies,
         })
     }

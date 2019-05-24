@@ -5,7 +5,6 @@ mod errors;
 mod opt;
 
 use log::debug;
-use opt::Opt;
 use pathdiff::diff_paths;
 use std::env::temp_dir;
 use std::fs::File;
@@ -18,6 +17,7 @@ use structopt::StructOpt;
 
 use crate::cargo::CargoManifest;
 use crate::errors::CargoPlayError;
+use crate::opt::{Opt, RustEdition};
 
 fn parse_inputs(inputs: &Vec<PathBuf>) -> Result<Vec<String>, CargoPlayError> {
     inputs
@@ -65,8 +65,9 @@ fn write_cargo_toml(
     dir: &PathBuf,
     name: String,
     dependencies: Vec<String>,
+    edition: RustEdition,
 ) -> Result<(), CargoPlayError> {
-    let manifest = CargoManifest::new(name, dependencies)?;
+    let manifest = CargoManifest::new(name, dependencies, edition)?;
     let mut cargo = File::create(dir.join("Cargo.toml"))?;
 
     cargo.write_all(&toml::to_vec(&manifest).map_err(CargoPlayError::from_serde)?)?;
@@ -140,7 +141,7 @@ fn main() -> Result<(), CargoPlayError> {
     let dependencies = extract_headers(&files);
     let temp = mktemp(opt.temp_dirname());
 
-    write_cargo_toml(&temp, opt.src_hash(), dependencies)?;
+    write_cargo_toml(&temp, opt.src_hash(), dependencies, opt.edition)?;
     copy_sources(&temp, &opt.src)?;
 
     match run_cargo_build(&temp)?.code() {
