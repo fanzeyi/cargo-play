@@ -28,10 +28,10 @@ impl From<std::io::Error> for CargoPlayError {
 
 impl CargoPlayError {
     pub fn from_serde<T: Debug>(value: T) -> Self {
-        Self::ParseError(format!("{:?}", value))
+        CargoPlayError::ParseError(format!("{:?}", value))
     }
 
     pub fn _message<T: Into<String>>(value: T) -> Self {
-        Self::_Message(value.into())
+        CargoPlayError::_Message(value.into())
     }
 }
