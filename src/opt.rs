@@ -19,9 +19,9 @@ impl FromStr for RustEdition {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s == "2018" {
-            Ok(Self::E2018)
+            Ok(RustEdition::E2018)
         } else if s == "2015" {
-            Ok(Self::E2015)
+            Ok(RustEdition::E2015)
         } else {
             Err(CargoPlayError::InvalidEdition(s.into()))
         }
