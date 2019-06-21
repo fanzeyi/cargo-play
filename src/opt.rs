@@ -1,6 +1,5 @@
-use base64;
-use sha1;
 use std::ffi::{OsStr, OsString};
+use std::iter::FromIterator;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::vec::Vec;
@@ -43,7 +42,7 @@ pub(crate) struct Opt {
     #[structopt(short = "d", long = "debug", hidden = true)]
     debug: bool,
     #[structopt(short = "t", long = "toolchain", hidden = true)]
-    toolchain: Option<String>,
+    pub toolchain: Option<String>,
     #[structopt(
         parse(try_from_os_str = "osstr_to_abspath"),
         raw(required = "true", validator = "file_exist")
@@ -72,6 +71,32 @@ impl Opt {
 
     pub fn temp_dirname(&self) -> PathBuf {
         format!("cargo-play.{}", self.src_hash()).into()
+    }
+
+    fn with_toolchain(mut self, toolchain: Option<String>) -> Self {
+        self.toolchain = toolchain;
+        self
+    }
+
+    pub fn parse(args: Vec<String>) -> Result<Self, ()> {
+        if args.len() < 2 {
+            Self::clap().print_help().unwrap_or(());
+            return Err(());
+        }
+
+        let with_cargo = args[1] == "play";
+        let mut args = args.into_iter();
+
+        if with_cargo {
+            args.next();
+        }
+
+        let toolchain = args
+            .clone()
+            .find(|x| x.starts_with("+"))
+            .map(|s| String::from_iter(s.chars().skip(1)));
+
+        Ok(Opt::from_iter(args.filter(|x| !x.starts_with("+"))).with_toolchain(toolchain))
     }
 }
 

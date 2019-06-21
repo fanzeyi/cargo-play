@@ -11,7 +11,6 @@ use std::iter::Iterator;
 use std::path::PathBuf;
 use std::process::{Command, ExitStatus, Stdio};
 use std::vec::Vec;
-use structopt::StructOpt;
 
 use crate::cargo::CargoManifest;
 use crate::errors::CargoPlayError;
@@ -110,8 +109,17 @@ fn copy_sources(temp: &PathBuf, sources: &Vec<PathBuf>) -> Result<(), CargoPlayE
     Ok(())
 }
 
-fn run_cargo_build(project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
-    Command::new("cargo")
+fn run_cargo_build(
+    toolchain: Option<String>,
+    project: &PathBuf,
+) -> Result<ExitStatus, CargoPlayError> {
+    let mut cargo = Command::new("cargo");
+
+    if let Some(toolchain) = toolchain {
+        cargo.arg(format!("+{}", toolchain));
+    }
+
+    cargo
         .arg("run")
         .arg("--manifest-path")
         .arg(project.join("Cargo.toml"))
@@ -123,17 +131,11 @@ fn run_cargo_build(project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
 
 fn main() -> Result<(), CargoPlayError> {
     let args = std::env::args().collect::<Vec<_>>();
-
-    if args.len() < 2 {
-        Opt::clap().print_help().unwrap_or(());
+    let opt = Opt::parse(args);
+    if opt.is_err() {
         return Ok(());
     }
-
-    let opt = if args[1] != "play" {
-        Opt::from_iter(args.into_iter())
-    } else {
-        Opt::from_iter(args[1..].into_iter())
-    };
+    let opt = opt.unwrap();
 
     let files = parse_inputs(&opt.src)?;
     let dependencies = extract_headers(&files);
@@ -142,7 +144,7 @@ fn main() -> Result<(), CargoPlayError> {
     write_cargo_toml(&temp, opt.src_hash(), dependencies, opt.edition)?;
     copy_sources(&temp, &opt.src)?;
 
-    match run_cargo_build(&temp)?.code() {
+    match run_cargo_build(opt.toolchain, &temp)?.code() {
         Some(code) => std::process::exit(code),
         None => std::process::exit(-1),
     }
