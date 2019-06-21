@@ -41,6 +41,8 @@ impl Into<String> for RustEdition {
 pub(crate) struct Opt {
     #[structopt(short = "d", long = "debug", hidden = true)]
     debug: bool,
+    #[structopt(short = "c", long = "clean")]
+    pub clean: bool,
     #[structopt(short = "t", long = "toolchain", hidden = true)]
     pub toolchain: Option<String>,
     #[structopt(

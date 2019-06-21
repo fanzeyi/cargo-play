@@ -4,7 +4,7 @@ mod opt;
 
 use log::debug;
 use pathdiff::diff_paths;
-use std::env::temp_dir;
+use std::env;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::iter::Iterator;
@@ -45,17 +45,24 @@ fn extract_headers(files: &Vec<String>) -> Vec<String> {
         .collect()
 }
 
-fn mktemp(name: PathBuf) -> PathBuf {
+fn temp_dir(name: PathBuf) -> PathBuf {
     let mut temp = PathBuf::new();
-    temp.push(temp_dir());
+    temp.push(env::temp_dir());
     temp.push(name);
+    temp
+}
 
+fn rmtemp(temp: &PathBuf) -> Result<(), CargoPlayError> {
+    debug!("Cleaning temporary folder at: {:?}", temp);
+    std::fs::remove_dir_all(temp)?;
+    Ok(())
+}
+
+fn mktemp(temp: &PathBuf) {
     debug!("Creating temporary building folder at: {:?}", temp);
-    if let Err(_) = std::fs::create_dir(&temp) {
+    if let Err(_) = std::fs::create_dir(temp) {
         debug!("Temporary directory already exists.");
     }
-
-    temp
 }
 
 fn write_cargo_toml(
@@ -139,8 +146,12 @@ fn main() -> Result<(), CargoPlayError> {
 
     let files = parse_inputs(&opt.src)?;
     let dependencies = extract_headers(&files);
-    let temp = mktemp(opt.temp_dirname());
+    let temp = temp_dir(opt.temp_dirname());
 
+    if opt.clean {
+        rmtemp(&temp)?;
+    }
+    mktemp(&temp);
     write_cargo_toml(&temp, opt.src_hash(), dependencies, opt.edition)?;
     copy_sources(&temp, &opt.src)?;
 
