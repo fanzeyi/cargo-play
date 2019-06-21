@@ -63,8 +63,11 @@ impl Opt {
     /// Generate a string of hash based on the path passed in
     pub fn src_hash(&self) -> String {
         let mut hash = sha1::Sha1::new();
+        let mut srcs = self.src.clone();
 
-        for file in self.src.iter() {
+        srcs.sort();
+
+        for file in srcs.into_iter() {
             hash.update(file.to_string_lossy().as_bytes());
         }
 
