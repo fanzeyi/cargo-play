@@ -57,6 +57,12 @@ pub(crate) struct Opt {
         raw(possible_values = r#"&["2015", "2018"]"#)
     )]
     pub edition: RustEdition,
+    #[structopt(long = "release")]
+    pub release: bool,
+    #[structopt(long = "cached")]
+    pub cached: bool,
+    #[structopt(short = "a", long = "arg", multiple = true)]
+    pub args: Vec<String>,
 }
 
 impl Opt {
