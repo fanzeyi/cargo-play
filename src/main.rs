@@ -119,6 +119,7 @@ fn copy_sources(temp: &PathBuf, sources: &Vec<PathBuf>) -> Result<(), CargoPlayE
 fn run_cargo_build(
     toolchain: Option<String>,
     project: &PathBuf,
+    release: bool,
 ) -> Result<ExitStatus, CargoPlayError> {
     let mut cargo = Command::new("cargo");
 
@@ -126,10 +127,16 @@ fn run_cargo_build(
         cargo.arg(format!("+{}", toolchain));
     }
 
-    cargo
+    let cargo = cargo
         .arg("run")
         .arg("--manifest-path")
-        .arg(project.join("Cargo.toml"))
+        .arg(project.join("Cargo.toml"));
+
+    if release {
+        cargo.arg("--release");
+    }
+
+    cargo
         .stderr(Stdio::inherit())
         .stdout(Stdio::inherit())
         .status()
@@ -144,18 +151,41 @@ fn main() -> Result<(), CargoPlayError> {
     }
     let opt = opt.unwrap();
 
+    let src_hash = opt.src_hash();
+    let temp = temp_dir(opt.temp_dirname());
+
+    if opt.cached && temp.exists() {
+        let mut bin_path = temp.join("target");
+        if opt.release {
+            bin_path.push("release");
+        } else {
+            bin_path.push("debug");
+        }
+        // TODO reuse logic to formulate package name, i.e. to_lowercase
+        bin_path.push(&src_hash.to_lowercase());
+        if bin_path.exists() {
+            let mut cmd = Command::new(bin_path);
+            return cmd
+                .args(opt.args)
+                .stderr(Stdio::inherit())
+                .stdout(Stdio::inherit())
+                .status()
+                .map(|_| ())
+                .map_err(CargoPlayError::from);
+        }
+    }
+
     let files = parse_inputs(&opt.src)?;
     let dependencies = extract_headers(&files);
-    let temp = temp_dir(opt.temp_dirname());
 
     if opt.clean {
         rmtemp(&temp)?;
     }
     mktemp(&temp);
-    write_cargo_toml(&temp, opt.src_hash(), dependencies, opt.edition)?;
+    write_cargo_toml(&temp, src_hash.clone(), dependencies, opt.edition)?;
     copy_sources(&temp, &opt.src)?;
 
-    match run_cargo_build(opt.toolchain, &temp)?.code() {
+    match run_cargo_build(opt.toolchain, &temp, opt.release)?.code() {
         Some(code) => std::process::exit(code),
         None => std::process::exit(-1),
     }
