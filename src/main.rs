@@ -36,7 +36,8 @@ fn extract_headers(files: &Vec<String>) -> Vec<String> {
         .iter()
         .map(|file: &String| -> Vec<String> {
             file.lines()
-                .filter(|line| line.starts_with("//#"))
+                .skip_while(|line| line.starts_with("#!") || line.is_empty())
+                .take_while(|line| line.starts_with("//#"))
                 .map(|line| line[3..].trim_start().into())
                 .filter(|s: &String| !s.is_empty())
                 .collect()
