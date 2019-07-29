@@ -37,11 +37,15 @@ impl Into<String> for RustEdition {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "cargo-play", about = "Single file cargo runner.")]
+#[structopt(
+    name = "cargo-play",
+    about = "Run your Rust program without Cargo.toml"
+)]
 pub(crate) struct Opt {
     #[structopt(short = "d", long = "debug", hidden = true)]
     debug: bool,
     #[structopt(short = "c", long = "clean")]
+    /// Rebuild the cargo project without the cache from previous run
     pub clean: bool,
     #[structopt(short = "t", long = "toolchain", hidden = true)]
     pub toolchain: Option<String>,
@@ -49,6 +53,7 @@ pub(crate) struct Opt {
         parse(try_from_os_str = "osstr_to_abspath"),
         raw(required = "true", validator = "file_exist")
     )]
+    /// Paths to your source code files
     pub src: Vec<PathBuf>,
     #[structopt(
         short = "e",
@@ -56,12 +61,15 @@ pub(crate) struct Opt {
         default_value = "2018",
         raw(possible_values = r#"&["2015", "2018"]"#)
     )]
+    /// Specify Rust edition
     pub edition: RustEdition,
     #[structopt(long = "release")]
+    /// Build program in release mode
     pub release: bool,
-    #[structopt(long = "cached")]
+    #[structopt(long = "cached", hidden = true)]
     pub cached: bool,
-    #[structopt(short = "a", long = "arg", multiple = true)]
+    #[structopt(multiple = true, last = true)]
+    /// Arguments passed to the underlying program
     pub args: Vec<String>,
 }
 
