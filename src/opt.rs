@@ -68,6 +68,9 @@ pub(crate) struct Opt {
     pub release: bool,
     #[structopt(long = "cached", hidden = true)]
     pub cached: bool,
+    #[structopt(long = "cargo-option")]
+    /// Custom flags passing to cargo
+    pub cargo_option: String,
     #[structopt(multiple = true, last = true)]
     /// Arguments passed to the underlying program
     pub args: Vec<String>,

@@ -121,6 +121,7 @@ fn run_cargo_build(
     toolchain: Option<String>,
     project: &PathBuf,
     release: bool,
+    cargo_option: &str,
 ) -> Result<ExitStatus, CargoPlayError> {
     let mut cargo = Command::new("cargo");
 
@@ -131,7 +132,9 @@ fn run_cargo_build(
     let cargo = cargo
         .arg("run")
         .arg("--manifest-path")
-        .arg(project.join("Cargo.toml"));
+        .arg(project.join("Cargo.toml"))
+        // FIXME: proper escaping
+        .args(cargo_option.split_ascii_whitespace());
 
     if release {
         cargo.arg("--release");
@@ -186,7 +189,7 @@ fn main() -> Result<(), CargoPlayError> {
     write_cargo_toml(&temp, src_hash.clone(), dependencies, opt.edition)?;
     copy_sources(&temp, &opt.src)?;
 
-    match run_cargo_build(opt.toolchain, &temp, opt.release)?.code() {
+    match run_cargo_build(opt.toolchain, &temp, opt.release, &opt.cargo_option)?.code() {
         Some(code) => std::process::exit(code),
         None => std::process::exit(-1),
     }
