@@ -1,5 +1,7 @@
 # cargo-play
 
+[![Build Status](https://travis-ci.org/fanzeyi/cargo-play.svg?branch=master)](https://travis-ci.org/fanzeyi/cargo-play) ![Crates.io](https://img.shields.io/crates/v/cargo-play)
+
 `cargo-play` is a tool to help you running your Rust code file without manually setting up a Cargo project.
 
 ## See it in action
