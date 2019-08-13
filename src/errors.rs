@@ -15,6 +15,9 @@ pub enum CargoPlayError {
     #[fail(display = "Unexpected edition {:?}. Edition must be 2015/2018.", _0)]
     InvalidEdition(String),
 
+    #[fail(display = "Path already exists at {:?}", _0)]
+    PathExistError(std::path::PathBuf),
+
     /// Helper error kind only exists for development purpose.
     #[fail(display = "{:?}", _0)]
     _Message(String),

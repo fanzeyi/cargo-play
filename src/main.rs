@@ -8,7 +8,7 @@ use std::env;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::iter::Iterator;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, ExitStatus, Stdio};
 use std::vec::Vec;
 
@@ -53,10 +53,10 @@ fn temp_dir(name: PathBuf) -> PathBuf {
     temp
 }
 
-fn rmtemp(temp: &PathBuf) -> Result<(), CargoPlayError> {
+/// This function ignores the error intentionally.
+fn rmtemp(temp: &PathBuf) {
     debug!("Cleaning temporary folder at: {:?}", temp);
-    std::fs::remove_dir_all(temp)?;
-    Ok(())
+    let _ = std::fs::remove_dir_all(temp);
 }
 
 fn mktemp(temp: &PathBuf) {
@@ -121,7 +121,7 @@ fn run_cargo_build(
     toolchain: Option<String>,
     project: &PathBuf,
     release: bool,
-    cargo_option: &str,
+    cargo_option: Option<String>,
 ) -> Result<ExitStatus, CargoPlayError> {
     let mut cargo = Command::new("cargo");
 
@@ -129,12 +129,15 @@ fn run_cargo_build(
         cargo.arg(format!("+{}", toolchain));
     }
 
-    let cargo = cargo
+    cargo
         .arg("run")
         .arg("--manifest-path")
-        .arg(project.join("Cargo.toml"))
+        .arg(project.join("Cargo.toml"));
+
+    if let Some(cargo_option) = cargo_option {
         // FIXME: proper escaping
-        .args(cargo_option.split_ascii_whitespace());
+        cargo.args(cargo_option.split_ascii_whitespace());
+    }
 
     if release {
         cargo.arg("--release");
@@ -144,6 +147,34 @@ fn run_cargo_build(
         .stderr(Stdio::inherit())
         .stdout(Stdio::inherit())
         .status()
+        .map_err(From::from)
+}
+
+fn copy_project<T: AsRef<Path>, U: AsRef<Path>>(
+    from: T,
+    to: U,
+) -> Result<ExitStatus, CargoPlayError> {
+    let to = to.as_ref();
+
+    if to.is_dir() {
+        return Err(CargoPlayError::PathExistError(to.to_path_buf()));
+    }
+
+    Command::new("cp")
+        .arg("-R")
+        .arg(from.as_ref())
+        .arg(&to)
+        .stderr(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .status()
+        .map(|x| {
+            // At this point we are certain the `to` path exists
+            println!(
+                "Generated project at {}",
+                to.canonicalize().unwrap().display()
+            );
+            x
+        })
         .map_err(From::from)
 }
 
@@ -183,13 +214,19 @@ fn main() -> Result<(), CargoPlayError> {
     let dependencies = extract_headers(&files);
 
     if opt.clean {
-        rmtemp(&temp)?;
+        rmtemp(&temp);
     }
-    mktemp(&temp);
+    dbg!(mktemp(&temp));
     write_cargo_toml(&temp, src_hash.clone(), dependencies, opt.edition)?;
     copy_sources(&temp, &opt.src)?;
 
-    match run_cargo_build(opt.toolchain, &temp, opt.release, &opt.cargo_option)?.code() {
+    let end = if let Some(save) = dbg!(opt.save) {
+        copy_project(&temp, &save)?
+    } else {
+        run_cargo_build(opt.toolchain, &temp, opt.release, opt.cargo_option)?
+    };
+
+    match end.code() {
         Some(code) => std::process::exit(code),
         None => std::process::exit(-1),
     }

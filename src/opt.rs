@@ -70,7 +70,10 @@ pub(crate) struct Opt {
     pub cached: bool,
     #[structopt(long = "cargo-option")]
     /// Custom flags passing to cargo
-    pub cargo_option: String,
+    pub cargo_option: Option<String>,
+    #[structopt(long = "save")]
+    /// Generate a Cargo project based on inputs
+    pub save: Option<PathBuf>,
     #[structopt(multiple = true, last = true)]
     /// Arguments passed to the underlying program
     pub args: Vec<String>,
