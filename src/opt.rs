@@ -8,7 +8,7 @@ use structopt::StructOpt;
 use crate::errors::CargoPlayError;
 
 #[derive(Debug)]
-pub(crate) enum RustEdition {
+pub enum RustEdition {
     E2015,
     E2018,
 }
@@ -36,14 +36,20 @@ impl Into<String> for RustEdition {
     }
 }
 
-#[derive(Debug, StructOpt)]
+impl Default for RustEdition {
+    fn default() -> Self {
+        RustEdition::E2018
+    }
+}
+
+#[derive(Debug, StructOpt, Default)]
 #[structopt(
     name = "cargo-play",
     about = "Run your Rust program without Cargo.toml"
 )]
-pub(crate) struct Opt {
+pub struct Opt {
     #[structopt(short = "d", long = "debug", hidden = true)]
-    debug: bool,
+    pub debug: bool,
     #[structopt(short = "c", long = "clean")]
     /// Rebuild the cargo project without the cache from previous run
     pub clean: bool,
