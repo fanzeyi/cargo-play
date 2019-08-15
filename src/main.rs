@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn test_extract_headers() {
-        let inputs = vec![
+        let inputs: Vec<String> = vec![
             r#"//# line 1
 //# line 2
 // line 3
