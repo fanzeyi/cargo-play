@@ -56,7 +56,13 @@ fn main() -> Result<(), CargoPlayError> {
     let end = if let Some(save) = opt.save {
         copy_project(&temp, &save)?
     } else {
-        run_cargo_build(opt.toolchain, &temp, opt.release, opt.cargo_option)?
+        run_cargo_build(
+            opt.toolchain,
+            &temp,
+            opt.release,
+            opt.cargo_option,
+            &opt.args,
+        )?
     };
 
     match end.code() {

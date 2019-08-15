@@ -118,6 +118,7 @@ pub fn run_cargo_build(
     project: &PathBuf,
     release: bool,
     cargo_option: Option<String>,
+    program_args: &[String],
 ) -> Result<ExitStatus, CargoPlayError> {
     let mut cargo = Command::new("cargo");
 
@@ -140,6 +141,8 @@ pub fn run_cargo_build(
     }
 
     cargo
+        .arg("--")
+        .args(program_args)
         .stderr(Stdio::inherit())
         .stdout(Stdio::inherit())
         .status()

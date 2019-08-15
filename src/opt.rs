@@ -1,6 +1,6 @@
 use std::ffi::{OsStr, OsString};
 use std::iter::FromIterator;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::vec::Vec;
 use structopt::StructOpt;
@@ -86,6 +86,18 @@ pub struct Opt {
 }
 
 impl Opt {
+    #[allow(unused)]
+    /// Convenient constructor for testing
+    pub fn with_files<I: AsRef<Path>>(src: Vec<I>) -> Self {
+        Opt {
+            src: src
+                .into_iter()
+                .filter_map(|x| std::fs::canonicalize(x).ok())
+                .collect(),
+            ..Default::default()
+        }
+    }
+
     /// Generate a string of hash based on the path passed in
     pub fn src_hash(&self) -> String {
         let mut hash = sha1::Sha1::new();
