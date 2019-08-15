@@ -12,9 +12,9 @@ use crate::cargo::CargoManifest;
 use crate::errors::CargoPlayError;
 use crate::opt::RustEdition;
 
-pub fn parse_inputs(inputs: &Vec<PathBuf>) -> Result<Vec<String>, CargoPlayError> {
+pub fn parse_inputs(inputs: &[PathBuf]) -> Result<Vec<String>, CargoPlayError> {
     inputs
-        .into_iter()
+        .iter()
         .map(File::open)
         .map(|res| match res {
             Ok(mut fp) => {
@@ -27,7 +27,7 @@ pub fn parse_inputs(inputs: &Vec<PathBuf>) -> Result<Vec<String>, CargoPlayError
         .collect()
 }
 
-pub fn extract_headers(files: &Vec<String>) -> Vec<String> {
+pub fn extract_headers(files: &[String]) -> Vec<String> {
     files
         .iter()
         .map(|file: &String| -> Vec<String> {
@@ -57,7 +57,7 @@ pub fn rmtemp(temp: &PathBuf) {
 
 pub fn mktemp(temp: &PathBuf) {
     debug!("Creating temporary building folder at: {:?}", temp);
-    if let Err(_) = std::fs::create_dir(temp) {
+    if std::fs::create_dir(temp).is_err() {
         debug!("Temporary directory already exists.");
     }
 }
@@ -78,7 +78,7 @@ pub fn write_cargo_toml(
 
 /// Copy all the passed in sources to the temporary directory. The first in the list will be
 /// treated as main.rs.
-pub fn copy_sources(temp: &PathBuf, sources: &Vec<PathBuf>) -> Result<(), CargoPlayError> {
+pub fn copy_sources(temp: &PathBuf, sources: &[PathBuf]) -> Result<(), CargoPlayError> {
     let destination = temp.join("src");
     std::fs::create_dir_all(&destination)?;
 
@@ -95,8 +95,8 @@ pub fn copy_sources(temp: &PathBuf, sources: &Vec<PathBuf>) -> Result<(), CargoP
     if let Some(base) = base {
         files
             .map(|file| -> Result<(), CargoPlayError> {
-                let part =
-                    diff_paths(file, base).ok_or(CargoPlayError::DiffPathError(file.to_owned()))?;
+                let part = diff_paths(file, base)
+                    .ok_or_else(|| CargoPlayError::DiffPathError(file.to_owned()))?;
                 let dst = destination.join(part);
 
                 // ensure the parent folder all exists

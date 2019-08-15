@@ -124,10 +124,10 @@ impl Opt {
 
         let toolchain = args
             .clone()
-            .find(|x| x.starts_with("+"))
+            .find(|x| x.starts_with('+'))
             .map(|s| String::from_iter(s.chars().skip(1)));
 
-        Ok(Opt::from_iter(args.filter(|x| !x.starts_with("+"))).with_toolchain(toolchain))
+        Ok(Opt::from_iter(args.filter(|x| !x.starts_with('+'))).with_toolchain(toolchain))
     }
 }
 
