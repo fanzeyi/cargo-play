@@ -199,3 +199,13 @@ fn program_args() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn external_crate() -> Result<()> {
+    let rt = TestRuntime::new()?;
+
+    let output = rt.run(&["fixtures/bitflags.rs"])?;
+    assert_eq!(output.status.code().unwrap(), 0);
+
+    Ok(())
+}
