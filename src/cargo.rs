@@ -24,6 +24,7 @@ impl CargoPackage {
 #[derive(Clone, Debug, Serialize)]
 pub(crate) struct CargoManifest {
     package: CargoPackage,
+    #[serde(serialize_with = "toml::ser::tables_last")]
     dependencies: Table,
 }
 
