@@ -18,6 +18,9 @@ pub enum CargoPlayError {
     #[fail(display = "Path already exists at {:?}", _0)]
     PathExistError(std::path::PathBuf),
 
+    #[fail(display = "Failed to parse source code: {:?}", _0)]
+    RustParseError(syn::Error),
+
     /// Helper error kind only exists for development purpose.
     #[fail(display = "{:?}", _0)]
     _Message(String),
@@ -26,6 +29,12 @@ pub enum CargoPlayError {
 impl From<std::io::Error> for CargoPlayError {
     fn from(value: std::io::Error) -> Self {
         CargoPlayError::IOError(value)
+    }
+}
+
+impl From<syn::Error> for CargoPlayError {
+    fn from(value: syn::Error) -> Self {
+        CargoPlayError::RustParseError(value)
     }
 }
 

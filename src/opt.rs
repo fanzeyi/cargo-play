@@ -80,6 +80,9 @@ pub struct Opt {
     #[structopt(long = "save")]
     /// Generate a Cargo project based on inputs
     pub save: Option<PathBuf>,
+    /// [experimental] Automatically infers dependency
+    #[structopt(long = "infer", short = "i")]
+    pub infer: bool,
     #[structopt(multiple = true, last = true)]
     /// Arguments passed to the underlying program
     pub args: Vec<String>,

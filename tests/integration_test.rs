@@ -209,3 +209,12 @@ fn external_crate() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn simple_infer() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let output = rt.run(&["--infer", "fixtures/infer.rs"])?;
+    assert_eq!(output.status.code().unwrap(), 0);
+
+    Ok(())
+}

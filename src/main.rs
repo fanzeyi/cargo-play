@@ -1,5 +1,6 @@
 mod cargo;
 mod errors;
+mod infer;
 mod opt;
 mod steps;
 
@@ -44,7 +45,15 @@ fn main() -> Result<(), CargoPlayError> {
     }
 
     let files = parse_inputs(&opt.src)?;
-    let dependencies = extract_headers(&files);
+    let mut dependencies = extract_headers(&files);
+
+    if opt.infer {
+        let mut infers = infer::analyze_sources(&opt.src)?
+            .into_iter()
+            .map(|crat| format!("{} = \"*\"", crat))
+            .collect();
+        dependencies.append(&mut infers);
+    }
 
     if opt.clean {
         rmtemp(&temp);
