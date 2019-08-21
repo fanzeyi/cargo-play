@@ -236,3 +236,13 @@ fn infer_override() -> Result<()> {
 
     Ok(())
 }
+
+/// See https://github.com/fanzeyi/cargo-play/pull/13 for details
+#[test]
+fn dtoa_test() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let output = rt.run(&["fixtures/dtoa.rs"])?;
+    assert_eq!(output.status.code().unwrap(), 0);
+
+    Ok(())
+}
