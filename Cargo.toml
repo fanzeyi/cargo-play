@@ -1,9 +1,9 @@
 [package]
 name = "cargo-play"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Zeyi Fan <cargo@zeyi.fan>"]
 edition = "2018"
-description = "Run your Rust code file without manually setting up a Cargo project."
+description = "Run your Rust code without setting up Cargo"
 license = "MIT"
 homepage = "https://github.com/fanzeyi/cargo-play"
 readme = "README.md"
@@ -17,10 +17,10 @@ sha1 = "0.6"
 base64 = "0.10"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
-pathdiff = "0.1.0"
-proc-macro2 = "1.0.1"
-syn = { version = "*", features = ["full"] }
-quote = "1.0.2"
+pathdiff = "0.1"
+proc-macro2 = "1.0"
+syn = { version = "1.0", features = ["full"] }
+quote = "1.0"
 
 [dev-dependencies]
 rand = "0.7.0"
