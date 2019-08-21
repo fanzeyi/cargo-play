@@ -4,6 +4,7 @@ mod infer;
 mod opt;
 mod steps;
 
+use std::collections::HashSet;
 use std::iter::Iterator;
 use std::process::{Command, Stdio};
 use std::vec::Vec;
@@ -45,21 +46,19 @@ fn main() -> Result<(), CargoPlayError> {
     }
 
     let files = parse_inputs(&opt.src)?;
-    let mut dependencies = extract_headers(&files);
+    let dependencies = extract_headers(&files);
 
-    if opt.infer {
-        let mut infers = infer::analyze_sources(&opt.src)?
-            .into_iter()
-            .map(|crat| format!("{} = \"*\"", crat))
-            .collect();
-        dependencies.append(&mut infers);
-    }
+    let infers = if opt.infer {
+        infer::analyze_sources(&opt.src)?
+    } else {
+        HashSet::new()
+    };
 
     if opt.clean {
         rmtemp(&temp);
     }
     mktemp(&temp);
-    write_cargo_toml(&temp, src_hash.clone(), dependencies, opt.edition)?;
+    write_cargo_toml(&temp, src_hash.clone(), dependencies, opt.edition, infers)?;
     copy_sources(&temp, &opt.src)?;
 
     let end = if let Some(save) = opt.save {

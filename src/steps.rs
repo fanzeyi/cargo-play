@@ -1,5 +1,4 @@
-use log::debug;
-use pathdiff::diff_paths;
+use std::collections::HashSet;
 use std::env;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -7,6 +6,9 @@ use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitStatus, Stdio};
 use std::vec::Vec;
+
+use log::debug;
+use pathdiff::diff_paths;
 
 use crate::cargo::CargoManifest;
 use crate::errors::CargoPlayError;
@@ -67,9 +69,12 @@ pub fn write_cargo_toml(
     name: String,
     dependencies: Vec<String>,
     edition: RustEdition,
+    infers: HashSet<String>,
 ) -> Result<(), CargoPlayError> {
-    let manifest = CargoManifest::new(name, dependencies, edition)?;
+    let mut manifest = CargoManifest::new(name, dependencies, edition)?;
     let mut cargo = File::create(dir.join("Cargo.toml"))?;
+
+    manifest.add_infers(infers);
 
     cargo.write_all(&toml::to_vec(&manifest).map_err(CargoPlayError::from_serde)?)?;
 

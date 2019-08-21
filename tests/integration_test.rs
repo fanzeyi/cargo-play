@@ -218,3 +218,21 @@ fn simple_infer() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn infer_failure() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let output = rt.run(&["--infer", "fixtures/infer-failure.rs"])?;
+    assert_ne!(output.status.code().unwrap(), 0);
+
+    Ok(())
+}
+
+#[test]
+fn infer_override() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let output = rt.run(&["--infer", "fixtures/infer-override.rs"])?;
+    assert_eq!(output.status.code().unwrap(), 0);
+
+    Ok(())
+}

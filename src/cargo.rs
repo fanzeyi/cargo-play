@@ -1,5 +1,7 @@
+use std::collections::HashSet;
+
 use serde::Serialize;
-use toml::value::Table;
+use toml::value::{Table, Value};
 
 use crate::errors::CargoPlayError;
 use crate::opt::RustEdition;
@@ -24,6 +26,7 @@ impl CargoPackage {
 #[derive(Clone, Debug, Serialize)]
 pub(crate) struct CargoManifest {
     package: CargoPackage,
+    #[serde(serialize_with = "toml::ser::tables_last")]
     dependencies: Table,
 }
 
@@ -53,5 +56,30 @@ impl CargoManifest {
             package: CargoPackage::new(name, edition),
             dependencies,
         })
+    }
+
+    fn normalize_crate_name(name: &str) -> String {
+        name.replace("-", "_")
+    }
+
+    fn normalized_dependencies(&self) -> HashSet<String> {
+        self.dependencies
+            .clone()
+            .into_iter()
+            .map(|(key, _)| Self::normalize_crate_name(&key))
+            .collect()
+    }
+
+    pub(crate) fn add_infers(&mut self, infers: HashSet<String>) {
+        let existing = self.normalized_dependencies();
+
+        // we don't need to normalize crate name here (in filter) since it's impossible to have
+        // dash in use statments.
+        self.dependencies.extend(
+            infers
+                .into_iter()
+                .filter(|key| !existing.contains(key))
+                .map(|key| (key, Value::String("*".into()))),
+        );
     }
 }
