@@ -99,7 +99,7 @@ Files under sub-directories will be copied and placed relatively to the first fi
 Add this line to your `.vimrc` or `init.vim`:
 
 ```vim
-command CargoPlay !cargo play %
+command! CargoPlay !cargo play %
 ```
 
 With your code file open, running `:CargoPlay` will allow you to test your current file within an auto-generated cargo project.
