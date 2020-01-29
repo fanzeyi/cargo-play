@@ -104,6 +104,37 @@ command! CargoPlay !cargo play %
 
 With your code file open, running `:CargoPlay` will allow you to test your current file within an auto-generated cargo project.
 
+### VSCode
+
+Open Command Palette and select **Configure Task**
+- *This will either create a new tasks.json or open your existing tasks.json*
+
+Add the following task:
+
+```json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "CargoPlay",
+            "command": "cargo",
+            "args": [
+                "play",
+                "${file}",
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ]
+        }
+    ]
+}
+```
+
+Now open the Command Palette, select **Run Task** and then run the new **CargoPlay** task
+
+<img src="./recordings/vscode_run_task.png" width="600">
+
 ## Acknowledgements
 
 This project is inspired by [play.rust-lang.org](https://play.rust-lang.org) and [RustPlayground](https://github.com/cmyr/RustPlayground).
