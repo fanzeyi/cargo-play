@@ -124,6 +124,7 @@ pub fn run_cargo_build(
     release: bool,
     cargo_option: Option<String>,
     program_args: &[String],
+    test: bool,
 ) -> Result<ExitStatus, CargoPlayError> {
     let mut cargo = Command::new("cargo");
 
@@ -131,8 +132,10 @@ pub fn run_cargo_build(
         cargo.arg(format!("+{}", toolchain));
     }
 
+    let subcommand = if test { "test" } else { "run" };
+
     cargo
-        .arg("run")
+        .arg(subcommand)
         .arg("--manifest-path")
         .arg(project.join("Cargo.toml"));
 

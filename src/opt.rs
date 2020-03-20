@@ -53,6 +53,9 @@ pub struct Opt {
     #[structopt(short = "c", long = "clean")]
     /// Rebuild the cargo project without the cache from previous run
     pub clean: bool,
+    #[structopt(long = "test")]
+    /// Build and run only tests in module
+    pub test: bool,
     #[structopt(short = "t", long = "toolchain", hidden = true)]
     pub toolchain: Option<String>,
     #[structopt(

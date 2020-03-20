@@ -70,6 +70,7 @@ fn main() -> Result<(), CargoPlayError> {
             opt.release,
             opt.cargo_option,
             &opt.args,
+            opt.test,
         )?
     };
 
