@@ -106,10 +106,14 @@ With your code file open, running `:CargoPlay` will allow you to test your curre
 
 ### VSCode
 
+Install the [VSCode Extension](./extension/README.md)
+
+OR
+
 Open Command Palette and select **Configure Task**
 - *This will either create a new tasks.json or open your existing tasks.json*
 
-Add the following task:
+Add the following [task](./.vscode/tasks.json):
 
 ```json
 {
