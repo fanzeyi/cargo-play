@@ -19,6 +19,17 @@ cargo install cargo-play
 Simply running `cargo play <files>` is sufficient. You can specify your external dependency at the
 beginning of your file with the prefix `//#`. It accepts the same TOML syntax as in `Cargo.toml`.
 
+### Shebang (self-executing Unix script)
+
+You can use this shebang line to execute a script. Adapted from [here](https://neosmart.net/blog/2020/self-compiling-rust-code/).
+
+```
+#!/bin/sh
+#![allow()] /*
+            exec cargo-play $0 -- "$@"
+            */
+```
+
 ## Example
 
 ```rust
