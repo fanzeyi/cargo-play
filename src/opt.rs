@@ -112,7 +112,7 @@ impl Opt {
             hash.update(file.to_string_lossy().as_bytes());
         }
 
-        base64::encode_config(&hash.digest().bytes()[..], base64::URL_SAFE_NO_PAD)
+        bs58::encode(hash.digest().bytes()).into_string()
     }
 
     pub fn temp_dirname(&self) -> PathBuf {
