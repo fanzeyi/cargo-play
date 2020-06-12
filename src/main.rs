@@ -22,6 +22,7 @@ fn main() -> Result<(), CargoPlayError> {
     let opt = opt.unwrap();
 
     let src_hash = opt.src_hash();
+    let package_name = format!("p{}", src_hash);
     let temp = temp_dir(opt.temp_dirname());
 
     if opt.cached && temp.exists() {
@@ -32,7 +33,7 @@ fn main() -> Result<(), CargoPlayError> {
             bin_path.push("debug");
         }
         // TODO reuse logic to formulate package name, i.e. to_lowercase
-        bin_path.push(&src_hash.to_lowercase());
+        bin_path.push(&package_name.to_lowercase());
         if bin_path.exists() {
             let mut cmd = Command::new(bin_path);
             return cmd
@@ -58,7 +59,7 @@ fn main() -> Result<(), CargoPlayError> {
         rmtemp(&temp);
     }
     mktemp(&temp);
-    write_cargo_toml(&temp, src_hash.clone(), dependencies, opt.edition, infers)?;
+    write_cargo_toml(&temp, package_name, dependencies, opt.edition, infers)?;
     copy_sources(&temp, &opt.src)?;
 
     let end = if let Some(save) = opt.save {

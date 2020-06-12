@@ -14,7 +14,7 @@ structopt = "0.2"
 failure = "0.1"
 toml = "0.5"
 sha1 = "0.6"
-base64 = "0.10"
+bs58 = "0.3.1"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 pathdiff = "0.1"
