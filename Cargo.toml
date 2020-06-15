@@ -1,6 +1,6 @@
 [package]
 name = "cargo-play"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Zeyi Fan <cargo@zeyi.fan>"]
 edition = "2018"
 description = "Run your Rust code without setting up Cargo"

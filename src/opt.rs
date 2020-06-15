@@ -81,7 +81,7 @@ pub struct Opt {
     #[structopt(long = "cached", hidden = true)]
     pub cached: bool,
 
-    #[structopt(long = "quiet")]
+    #[structopt(long = "quiet", short = "q")]
     /// Disable output from Cargo (equivlant to `cargo run --quiet`)
     pub quiet: bool,
 
