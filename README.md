@@ -1,6 +1,6 @@
 # cargo-play
 
-[![Build Status](https://travis-ci.org/fanzeyi/cargo-play.svg?branch=master)](https://travis-ci.org/fanzeyi/cargo-play) ![Crates.io](https://img.shields.io/crates/v/cargo-play)
+[![Build Status](https://travis-ci.org/fanzeyi/cargo-play.svg?branch=master)](https://travis-ci.org/fanzeyi/cargo-play) [![Crates.io](https://img.shields.io/crates/v/cargo-play)](https://crates.io/crates/cargo-play)
 
 `cargo-play` is a tool to help you running your Rust code file without manually setting up a Cargo project.
 
@@ -150,7 +150,7 @@ end
 function play(bp)
 
     bp:Save()
-    
+
     if bp.Buf:FileType() == "rust" then
         shell.RunInteractiveShell("cargo play " .. bp.Buf.Path, true, false)
     end
