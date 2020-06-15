@@ -135,6 +135,32 @@ Now open the Command Palette, select **Run Task** and then run the new **CargoPl
 
 <img src="./recordings/vscode_run_task.png" width="600">
 
+### Micro
+
+add this to your [micro](https://micro-editor.github.io/) `~/.config/micro/init.lua`
+
+```lua
+local config = import("micro/config")
+
+function init()
+    config.TryBindKey("Alt-b", "lua:initlua.play", true)
+    config.MakeCommand("cargoplay", play, config.NoComplete)
+end
+
+function play(bp)
+
+    bp:Save()
+    
+    if bp.Buf:FileType() == "rust" then
+        shell.RunInteractiveShell("cargo play " .. bp.Buf.Path, true, false)
+    end
+end
+
+```
+
+Then you can hit **Alt** + **b** to __build__ your current file usig `cargo play` or you can use **Ctrl** + **E** and in the command console type **cargoplay**
+
+
 ## Acknowledgements
 
 This project is inspired by [play.rust-lang.org](https://play.rust-lang.org) and [RustPlayground](https://github.com/cmyr/RustPlayground).
