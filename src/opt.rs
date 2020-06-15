@@ -7,7 +7,7 @@ use structopt::StructOpt;
 
 use crate::errors::CargoPlayError;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum RustEdition {
     E2015,
     E2018,
@@ -50,17 +50,21 @@ impl Default for RustEdition {
 pub struct Opt {
     #[structopt(short = "d", long = "debug", hidden = true)]
     pub debug: bool,
+
     #[structopt(short = "c", long = "clean")]
     /// Rebuild the cargo project without the cache from previous run
     pub clean: bool,
+
     #[structopt(short = "t", long = "toolchain", hidden = true)]
     pub toolchain: Option<String>,
+
     #[structopt(
         parse(try_from_os_str = "osstr_to_abspath"),
         raw(required = "true", validator = "file_exist")
     )]
     /// Paths to your source code files
     pub src: Vec<PathBuf>,
+
     #[structopt(
         short = "e",
         long = "edition",
@@ -69,20 +73,34 @@ pub struct Opt {
     )]
     /// Specify Rust edition
     pub edition: RustEdition,
+
     #[structopt(long = "release")]
     /// Build program in release mode
     pub release: bool,
+
     #[structopt(long = "cached", hidden = true)]
     pub cached: bool,
+
+    #[structopt(long = "quiet")]
+    /// Disable output from Cargo (equivlant to `cargo run --quiet`)
+    pub quiet: bool,
+
+    #[structopt(long = "verbose", short = "v", parse(from_occurrences))]
+    /// Set Cargo verbose level
+    pub verbose: u16,
+
     #[structopt(long = "cargo-option")]
     /// Custom flags passing to cargo
     pub cargo_option: Option<String>,
+
     #[structopt(long = "save")]
     /// Generate a Cargo project based on inputs
     pub save: Option<PathBuf>,
+
     /// [experimental] Automatically infers dependency
     #[structopt(long = "infer", short = "i")]
     pub infer: bool,
+
     #[structopt(multiple = true, last = true)]
     /// Arguments passed to the underlying program
     pub args: Vec<String>,

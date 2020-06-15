@@ -12,7 +12,7 @@ use pathdiff::diff_paths;
 
 use crate::cargo::CargoManifest;
 use crate::errors::CargoPlayError;
-use crate::opt::RustEdition;
+use crate::opt::{Opt, RustEdition};
 
 pub fn parse_inputs(inputs: &[PathBuf]) -> Result<Vec<String>, CargoPlayError> {
     inputs
@@ -118,16 +118,10 @@ pub fn copy_sources(temp: &PathBuf, sources: &[PathBuf]) -> Result<(), CargoPlay
     Ok(())
 }
 
-pub fn run_cargo_build(
-    toolchain: Option<String>,
-    project: &PathBuf,
-    release: bool,
-    cargo_option: Option<String>,
-    program_args: &[String],
-) -> Result<ExitStatus, CargoPlayError> {
+pub fn run_cargo_build(options: &Opt, project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
     let mut cargo = Command::new("cargo");
 
-    if let Some(toolchain) = toolchain {
+    if let Some(toolchain) = options.toolchain.as_ref() {
         cargo.arg(format!("+{}", toolchain));
     }
 
@@ -136,18 +130,28 @@ pub fn run_cargo_build(
         .arg("--manifest-path")
         .arg(project.join("Cargo.toml"));
 
-    if let Some(cargo_option) = cargo_option {
+    if let Some(cargo_option) = options.cargo_option.as_ref() {
         // FIXME: proper escaping
         cargo.args(cargo_option.split_ascii_whitespace());
     }
 
-    if release {
+    if options.release {
         cargo.arg("--release");
+    }
+
+    if options.quiet {
+        cargo.arg("--quiet");
+    }
+
+    if options.verbose != 0 {
+        for _ in 0..options.verbose {
+            cargo.arg("-v");
+        }
     }
 
     cargo
         .arg("--")
-        .args(program_args)
+        .args(options.args.clone())
         .stderr(Stdio::inherit())
         .stdout(Stdio::inherit())
         .status()

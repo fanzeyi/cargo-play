@@ -59,19 +59,19 @@ fn main() -> Result<(), CargoPlayError> {
         rmtemp(&temp);
     }
     mktemp(&temp);
-    write_cargo_toml(&temp, package_name, dependencies, opt.edition, infers)?;
+    write_cargo_toml(
+        &temp,
+        package_name,
+        dependencies,
+        opt.edition.clone(),
+        infers,
+    )?;
     copy_sources(&temp, &opt.src)?;
 
     let end = if let Some(save) = opt.save {
         copy_project(&temp, &save)?
     } else {
-        run_cargo_build(
-            opt.toolchain,
-            &temp,
-            opt.release,
-            opt.cargo_option,
-            &opt.args,
-        )?
+        run_cargo_build(&opt, &temp)?
     };
 
     match end.code() {

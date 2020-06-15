@@ -176,6 +176,22 @@ fn release_mode() -> Result<()> {
 }
 
 #[test]
+fn quiet_mode() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let output = rt.run(&["--quiet", "fixtures/hello.rs"])?;
+    assert!(!output.stderr.contains("Running"));
+    Ok(())
+}
+
+#[test]
+fn verbose_mode() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let output = rt.run(&["-v", "fixtures/hello.rs"])?;
+    assert!(output.stderr.contains("rustc"));
+    Ok(())
+}
+
+#[test]
 fn cargo_option() -> Result<()> {
     let rt = TestRuntime::new()?;
 
