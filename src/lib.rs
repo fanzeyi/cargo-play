@@ -1,4 +1,4 @@
 mod cargo;
 mod errors;
-pub mod opt;
+pub mod options;
 pub mod steps;

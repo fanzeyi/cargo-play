@@ -4,7 +4,7 @@ use serde::Serialize;
 use toml::value::{Table, Value};
 
 use crate::errors::CargoPlayError;
-use crate::opt::RustEdition;
+use crate::options::RustEdition;
 
 #[derive(Clone, Debug, Serialize)]
 struct CargoPackage {

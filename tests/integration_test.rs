@@ -1,4 +1,4 @@
-use cargo_play::opt::Opt;
+use cargo_play::options::Options;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::env;
@@ -108,7 +108,7 @@ fn basic() -> Result<()> {
 #[test]
 fn clean() -> Result<()> {
     let rt = TestRuntime::new()?;
-    let opt = Opt::with_files(vec!["fixtures/hello.rs"]);
+    let opt = Options::with_files(vec!["fixtures/hello.rs"]);
     let path = rt.temp_dir(opt.temp_dirname());
     let canary = path.clone().join("canary");
 
@@ -151,7 +151,7 @@ fn edition() -> Result<()> {
 fn debug_mode() -> Result<()> {
     let rt = TestRuntime::new()?;
 
-    let opt = Opt::with_files(vec!["fixtures/hello.rs"]);
+    let opt = Options::with_files(vec!["fixtures/hello.rs"]);
     let path = rt.temp_dir(opt.temp_dirname());
 
     let _ = rt.run(&["fixtures/hello.rs"])?;
@@ -165,7 +165,7 @@ fn debug_mode() -> Result<()> {
 fn release_mode() -> Result<()> {
     let rt = TestRuntime::new()?;
 
-    let opt = Opt::with_files(vec!["fixtures/hello.rs"]);
+    let opt = Options::with_files(vec!["fixtures/hello.rs"]);
     let path = rt.temp_dir(opt.temp_dirname());
 
     let _ = rt.run(&["--release", "fixtures/hello.rs"])?;
@@ -195,7 +195,7 @@ fn verbose_mode() -> Result<()> {
 fn cargo_option() -> Result<()> {
     let rt = TestRuntime::new()?;
 
-    let opt = Opt::with_files(vec!["fixtures/hello.rs"]);
+    let opt = Options::with_files(vec!["fixtures/hello.rs"]);
     let path = rt.temp_dir(opt.temp_dirname());
 
     let _ = rt.run(&["--cargo-option=--release", "fixtures/hello.rs"])?;

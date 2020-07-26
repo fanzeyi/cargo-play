@@ -1,7 +1,7 @@
 mod cargo;
 mod errors;
 mod infer;
-mod opt;
+mod options;
 mod steps;
 
 use std::collections::HashSet;
@@ -10,12 +10,12 @@ use std::process::{Command, Stdio};
 use std::vec::Vec;
 
 use crate::errors::CargoPlayError;
-use crate::opt::Opt;
+use crate::options::Options;
 use crate::steps::*;
 
 fn main() -> Result<(), CargoPlayError> {
     let args = std::env::args().collect::<Vec<_>>();
-    let opt = Opt::parse(args);
+    let opt = Options::parse(args);
     if opt.is_err() {
         return Ok(());
     }

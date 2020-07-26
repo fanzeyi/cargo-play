@@ -12,7 +12,7 @@ use pathdiff::diff_paths;
 
 use crate::cargo::CargoManifest;
 use crate::errors::CargoPlayError;
-use crate::opt::{Opt, RustEdition};
+use crate::options::{Options, RustEdition};
 
 pub fn parse_inputs(inputs: &[PathBuf]) -> Result<Vec<String>, CargoPlayError> {
     inputs
@@ -118,7 +118,7 @@ pub fn copy_sources(temp: &PathBuf, sources: &[PathBuf]) -> Result<(), CargoPlay
     Ok(())
 }
 
-pub fn run_cargo_build(options: &Opt, project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
+pub fn run_cargo_build(options: &Options, project: &PathBuf) -> Result<ExitStatus, CargoPlayError> {
     let mut cargo = Command::new("cargo");
 
     if let Some(toolchain) = options.toolchain.as_ref() {

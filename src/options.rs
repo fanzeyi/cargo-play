@@ -47,7 +47,7 @@ impl Default for RustEdition {
     name = "cargo-play",
     about = "Run your Rust program without Cargo.toml"
 )]
-pub struct Opt {
+pub struct Options {
     #[structopt(short = "d", long = "debug", hidden = true)]
     pub debug: bool,
 
@@ -110,11 +110,11 @@ pub struct Opt {
     pub args: Vec<String>,
 }
 
-impl Opt {
+impl Options {
     #[allow(unused)]
     /// Convenient constructor for testing
     pub fn with_files<I: AsRef<Path>>(src: Vec<I>) -> Self {
-        Opt {
+        Self {
             src: src
                 .into_iter()
                 .filter_map(|x| std::fs::canonicalize(x).ok())
@@ -164,7 +164,7 @@ impl Opt {
             .find(|x| x.starts_with('+'))
             .map(|s| String::from_iter(s.chars().skip(1)));
 
-        Ok(Opt::from_iter(args.filter(|x| !x.starts_with('+'))).with_toolchain(toolchain))
+        Ok(Self::from_iter(args.filter(|x| !x.starts_with('+'))).with_toolchain(toolchain))
     }
 }
 
