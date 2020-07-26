@@ -125,7 +125,15 @@ pub fn run_cargo_build(options: &Options, project: &PathBuf) -> Result<ExitStatu
         cargo.arg(format!("+{}", toolchain));
     }
 
-    let subcommand = if options.test { "test" } else { "run" };
+    let subcommand = if options.test {
+        "test"
+    } else if options.check {
+        "check"
+    } else if let Some(mode) = options.mode.as_ref() {
+        mode.as_str()
+    } else {
+        "run"
+    };
 
     cargo
         .arg(subcommand)

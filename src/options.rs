@@ -55,16 +55,30 @@ pub struct Options {
     /// Rebuild the cargo project without the cache from previous run
     pub clean: bool,
 
-    #[structopt(long = "test")]
-    /// Build and run only tests in module
+    #[structopt(
+        short = "m",
+        long = "mode",
+        group = "modegroup",
+        possible_values = &["test", "check"]
+    )]
+    /// Speicfy run mode
+    pub mode: Option<String>,
+
+    /// Run code in test mode (alias to `--mode test`)
+    #[structopt(long = "test", group = "modegroup")]
     pub test: bool,
+
+    /// Run code in check mode (alias to `--mode check`)
+    #[structopt(long = "check", group = "modegroup")]
+    pub check: bool,
 
     #[structopt(short = "t", long = "toolchain", hidden = true)]
     pub toolchain: Option<String>,
 
     #[structopt(
-        parse(try_from_os_str = "osstr_to_abspath"),
-        raw(required = "true", validator = "file_exist")
+        parse(try_from_os_str = osstr_to_abspath),
+        required = true,
+        validator = file_exist
     )]
     /// Paths to your source code files
     pub src: Vec<PathBuf>,
@@ -73,7 +87,7 @@ pub struct Options {
         short = "e",
         long = "edition",
         default_value = "2018",
-        raw(possible_values = r#"&["2015", "2018"]"#)
+        possible_values = &["2015", "2018"]
     )]
     /// Specify Rust edition
     pub edition: RustEdition,

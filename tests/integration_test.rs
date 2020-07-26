@@ -262,3 +262,13 @@ fn dtoa_test() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+fn test_mode_test() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let output = rt.run(&["--test", "fixtures/tests.rs"])?;
+    println!("{}", output.stderr);
+    assert_eq!(output.status.code().unwrap(), 0);
+
+    Ok(())
+}
