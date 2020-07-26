@@ -125,8 +125,10 @@ pub fn run_cargo_build(options: &Opt, project: &PathBuf) -> Result<ExitStatus, C
         cargo.arg(format!("+{}", toolchain));
     }
 
+    let subcommand = if options.test { "test" } else { "run" };
+
     cargo
-        .arg("run")
+        .arg(subcommand)
         .arg("--manifest-path")
         .arg(project.join("Cargo.toml"));
 
