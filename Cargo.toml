@@ -1,6 +1,6 @@
 [package]
 name = "cargo-play"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Zeyi Fan <cargo@zeyi.fan>"]
 edition = "2018"
 description = "Run your Rust code without setting up Cargo"
@@ -24,3 +24,7 @@ quote = "1.0"
 
 [dev-dependencies]
 rand = "0.7.0"
+
+[badges]
+travis-ci = { repository = "fanzeyi/cargo-play" }
+maintenance = { status = "passively-maintained" }
