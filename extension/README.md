@@ -19,7 +19,7 @@
 Install from Github:
 ```
 $ git clone https://github.com/fanzeyi/cargo-play
-$ code --install-extension cargo-play/extension/cargo-play.0.0.1.vsix
+$ code --install-extension cargo-play/extension/cargo-play-0.0.1.vsix
 ```
 
 ## Known Issues
