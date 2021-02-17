@@ -1,7 +1,5 @@
 use std::collections::HashSet;
-use std::fs;
 use std::iter;
-use std::path::PathBuf;
 
 use proc_macro2::{Ident, TokenStream, TokenTree};
 use quote::ToTokens;
@@ -36,16 +34,15 @@ fn extra_use<'a, T: 'a + IntoIterator<Item = TokenTree> + Clone>(
     )
 }
 
-pub fn analyze_sources(sources: &Vec<PathBuf>) -> Result<HashSet<String>, CargoPlayError> {
-    let contents: Vec<_> = sources
-        .into_iter()
-        .map(fs::read_to_string)
-        .collect::<Result<_, _>>()?;
-
-    let streams: Vec<TokenStream> = contents
-        .into_iter()
-        .map(|file| -> Result<_, CargoPlayError> {
-            Ok(syn::parse_file(&file)?.into_token_stream())
+pub fn analyze_sources(
+    stdin: Option<&str>,
+    sources: &[&str],
+) -> Result<HashSet<String>, CargoPlayError> {
+    let streams: Vec<TokenStream> = stdin
+        .iter()
+        .chain(sources.iter())
+        .map(|source| -> Result<_, CargoPlayError> {
+            Ok(syn::parse_file(source)?.into_token_stream())
         })
         .collect::<Result<_, CargoPlayError>>()?;
 
