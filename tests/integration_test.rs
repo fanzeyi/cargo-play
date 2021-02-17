@@ -3,9 +3,10 @@ use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use std::env;
 use std::ffi::OsStr;
+use std::io::prelude::*;
 use std::io::Result;
 use std::path::{Path, PathBuf};
-use std::process::{ExitStatus, Output, Stdio};
+use std::process::{Command, ExitStatus, Output, Stdio};
 
 struct TestRuntime {
     scratch: PathBuf,
@@ -45,6 +46,23 @@ impl TestRuntime {
         self.scratch.join(path)
     }
 
+    fn run_with_stdin<
+        I: IntoIterator<Item = S> + std::fmt::Debug,
+        S: AsRef<OsStr> + std::fmt::Debug,
+    >(
+        &self,
+        args: I,
+    ) -> Command {
+        let mut play = std::process::Command::new(cargo_play_binary_path());
+        play.env("TMP", &self.scratch)
+            .env("TMPDIR", &self.scratch)
+            .args(args)
+            .stdin(Stdio::piped())
+            .stderr(Stdio::piped())
+            .stdout(Stdio::piped());
+        play
+    }
+
     fn run<I: IntoIterator<Item = S> + std::fmt::Debug, S: AsRef<OsStr> + std::fmt::Debug>(
         &self,
         args: I,
@@ -53,6 +71,7 @@ impl TestRuntime {
         play.env("TMP", &self.scratch)
             .env("TMPDIR", &self.scratch)
             .args(args)
+            .stdin(Stdio::piped())
             .stderr(Stdio::piped())
             .stdout(Stdio::piped())
             .output()
@@ -269,6 +288,30 @@ fn test_mode_test() -> Result<()> {
     let output = rt.run(&["--test", "fixtures/tests.rs"])?;
     println!("{}", output.stderr);
     assert_eq!(output.status.code().unwrap(), 0);
+
+    Ok(())
+}
+
+#[test]
+fn stdin_with_hello() -> Result<()> {
+    let rt = TestRuntime::new()?;
+    let mut ps = {
+        let mut p = rt.run_with_stdin(&["--stdin", "hello.rs"]);
+        p.current_dir(std::fs::canonicalize("fixtures")?);
+        p.spawn()?
+    };
+    {
+        let mut stdin = ps.stdin.take().unwrap();
+        stdin.write_all("mod hello; fn main() { hello::hello(); }".as_bytes())?;
+    } // close stdin
+    let status = ps.wait()?;
+    assert_eq!(status.code().unwrap(), 0);
+    let out = {
+        let mut buff = String::new();
+        ps.stdout.unwrap().read_to_string(&mut buff)?;
+        buff
+    };
+    assert_eq!(out, "Hello World!\n");
 
     Ok(())
 }
