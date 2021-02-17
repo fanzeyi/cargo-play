@@ -46,11 +46,13 @@ fn main() -> Result<(), CargoPlayError> {
         }
     }
 
-    let files = parse_inputs(&opt.src)?;
-    let dependencies = extract_headers(&files);
+    let stdin = if opt.stdin { Some(read_stdin()?) } else { None };
+    let files = read_files(&opt.src)?;
+    let sources: Vec<&str> = files.iter().map(|(source, _)| -> &str { source }).collect();
+    let dependencies = extract_headers(stdin.as_deref(), &sources);
 
     let infers = if opt.infer {
-        infer::analyze_sources(&opt.src)?
+        infer::analyze_sources(stdin.as_deref(), &sources)?
     } else {
         HashSet::new()
     };
@@ -66,7 +68,7 @@ fn main() -> Result<(), CargoPlayError> {
         opt.edition.clone(),
         infers,
     )?;
-    copy_sources(&temp, &opt.src)?;
+    copy_sources(&temp, stdin.as_deref(), &files)?;
 
     let end = if let Some(save) = opt.save {
         copy_project(&temp, &save)?
@@ -86,7 +88,14 @@ mod tests {
 
     #[test]
     fn test_extract_headers() {
-        let inputs: Vec<String> = vec![
+        let stdin = Some(
+            r#"//# line 1
+//# line 2
+// line 3
+//# line 4"#
+                .to_string(),
+        );
+        let inputs: Vec<&str> = vec![
             r#"//# line 1
 //# line 2
 // line 3
@@ -95,10 +104,12 @@ mod tests {
         .into_iter()
         .map(Into::into)
         .collect();
-        let result = extract_headers(&inputs);
+        let result = extract_headers(stdin.as_deref(), &inputs);
 
-        assert_eq!(result.len(), 2);
+        assert_eq!(result.len(), 4);
         assert_eq!(result[0], String::from("line 1"));
         assert_eq!(result[1], String::from("line 2"));
+        assert_eq!(result[2], String::from("line 1"));
+        assert_eq!(result[3], String::from("line 2"));
     }
 }

@@ -77,7 +77,7 @@ pub struct Options {
 
     #[structopt(
         parse(try_from_os_str = osstr_to_abspath),
-        required = true,
+        required_unless = "stdin",
         validator = file_exist
     )]
     /// Paths to your source code files
@@ -106,6 +106,10 @@ pub struct Options {
     #[structopt(long = "verbose", short = "v", parse(from_occurrences))]
     /// Set Cargo verbose level
     pub verbose: u16,
+
+    #[structopt(long = "stdin")]
+    /// Use stdin as main.rs
+    pub stdin: bool,
 
     #[structopt(long = "cargo-option")]
     /// Custom flags passing to cargo
