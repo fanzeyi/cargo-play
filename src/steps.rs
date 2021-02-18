@@ -14,26 +14,32 @@ use crate::cargo::CargoManifest;
 use crate::errors::CargoPlayError;
 use crate::options::{Options, RustEdition};
 
-pub fn parse_inputs(inputs: &[PathBuf]) -> Result<Vec<String>, CargoPlayError> {
+pub fn read_stdin() -> Result<String, CargoPlayError> {
+    let mut buffer = String::new();
+    std::io::stdin().read_to_string(&mut buffer)?;
+    Ok(buffer)
+}
+
+pub fn read_files(inputs: &[PathBuf]) -> Result<Vec<(String, &Path)>, CargoPlayError> {
     inputs
         .iter()
-        .map(File::open)
-        .map(|res| match res {
-            Ok(mut fp) => {
-                let mut buf = String::new();
-                fp.read_to_string(&mut buf)?;
-                Ok(buf)
-            }
-            Err(e) => Err(CargoPlayError::from(e)),
+        .map(AsRef::as_ref)
+        .map(|p: &Path| {
+            let mut fp = File::open(p)?;
+            let mut buf = String::new();
+            fp.read_to_string(&mut buf)?;
+            Ok((buf, p))
         })
         .collect()
 }
 
-pub fn extract_headers(files: &[String]) -> Vec<String> {
-    files
+pub fn extract_headers(stdin: Option<&str>, sources: &[&str]) -> Vec<String> {
+    stdin
         .iter()
-        .map(|file: &String| -> Vec<String> {
-            file.lines()
+        .chain(sources.iter())
+        .map(|source| -> Vec<String> {
+            source
+                .lines()
                 .skip_while(|line| line.starts_with("#!") || line.is_empty())
                 .take_while(|line| line.starts_with("//#"))
                 .map(|line| line[3..].trim_start().into())
@@ -83,25 +89,34 @@ pub fn write_cargo_toml(
 
 /// Copy all the passed in sources to the temporary directory. The first in the list will be
 /// treated as main.rs.
-pub fn copy_sources(temp: &PathBuf, sources: &[PathBuf]) -> Result<(), CargoPlayError> {
+pub fn copy_sources(
+    temp: &PathBuf,
+    stdin: Option<&str>,
+    files: &[(String, &Path)],
+) -> Result<(), CargoPlayError> {
     let destination = temp.join("src");
     std::fs::create_dir_all(&destination)?;
 
-    let mut files = sources.iter();
-    let base = if let Some(first) = files.next() {
+    let mut files = files.iter();
+    let base: Option<PathBuf> = if let Some(main) = stdin {
+        let dst = destination.join("main.rs");
+        debug!("Copying stdin => {:?}", dst);
+        std::fs::write(dst, main)?;
+        Some(std::env::current_dir()?)
+    } else if let Some((main, first)) = files.next() {
         let dst = destination.join("main.rs");
         debug!("Copying {:?} => {:?}", first, dst);
-        std::fs::copy(first, dst)?;
-        first.parent()
+        std::fs::write(dst, main)?;
+        first.parent().map(|p| p.to_path_buf())
     } else {
         None
     };
 
-    if let Some(base) = base {
+    if let Some(base) = &base {
         files
-            .map(|file| -> Result<(), CargoPlayError> {
+            .map(|(source, file)| -> Result<(), CargoPlayError> {
                 let part = diff_paths(file, base)
-                    .ok_or_else(|| CargoPlayError::DiffPathError(file.to_owned()))?;
+                    .ok_or_else(|| CargoPlayError::DiffPathError(file.to_path_buf()))?;
                 let dst = destination.join(part);
 
                 // ensure the parent folder all exists
@@ -110,7 +125,8 @@ pub fn copy_sources(temp: &PathBuf, sources: &[PathBuf]) -> Result<(), CargoPlay
                 }
 
                 debug!("Copying {:?} => {:?}", file, dst);
-                std::fs::copy(file, dst).map(|_| ()).map_err(From::from)
+                std::fs::write(dst, source)?;
+                Ok(())
             })
             .collect::<Result<Vec<_>, _>>()?;
     }
