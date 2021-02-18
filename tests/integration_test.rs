@@ -71,7 +71,6 @@ impl TestRuntime {
         play.env("TMP", &self.scratch)
             .env("TMPDIR", &self.scratch)
             .args(args)
-            .stdin(Stdio::piped())
             .stderr(Stdio::piped())
             .stdout(Stdio::piped())
             .output()
@@ -296,13 +295,13 @@ fn test_mode_test() -> Result<()> {
 fn stdin_with_hello() -> Result<()> {
     let rt = TestRuntime::new()?;
     let mut ps = {
-        let mut p = rt.run_with_stdin(&["--stdin", "hello.rs"]);
+        let mut p = rt.run_with_stdin(&["--stdin", "mod_hello.rs"]);
         p.current_dir(std::fs::canonicalize("fixtures")?);
         p.spawn()?
     };
     {
         let mut stdin = ps.stdin.take().unwrap();
-        stdin.write_all("mod hello; fn main() { hello::hello(); }".as_bytes())?;
+        stdin.write_all("mod mod_hello; fn main() { mod_hello::hello(); }".as_bytes())?;
     } // close stdin
     let status = ps.wait()?;
     assert_eq!(status.code().unwrap(), 0);
