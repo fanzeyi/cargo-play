@@ -61,7 +61,7 @@ pub struct Options {
         group = "modegroup",
         possible_values = &["test", "check"]
     )]
-    /// Speicfy run mode
+    /// Specify run mode
     pub mode: Option<String>,
 
     /// Run code in test mode (alias to `--mode test`)
