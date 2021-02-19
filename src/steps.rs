@@ -145,6 +145,8 @@ pub fn run_cargo_build(options: &Options, project: &PathBuf) -> Result<ExitStatu
         "test"
     } else if options.check {
         "check"
+    } else if options.expand {
+        "expand"
     } else if let Some(mode) = options.mode.as_ref() {
         mode.as_str()
     } else {
