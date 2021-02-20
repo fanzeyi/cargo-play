@@ -59,7 +59,7 @@ pub struct Options {
         short = "m",
         long = "mode",
         group = "modegroup",
-        possible_values = &["test", "check"]
+        possible_values = &["test", "check", "expand"]
     )]
     /// Specify run mode
     pub mode: Option<String>,
@@ -71,6 +71,11 @@ pub struct Options {
     /// Run code in check mode (alias to `--mode check`)
     #[structopt(long = "check", group = "modegroup")]
     pub check: bool,
+
+    /// Run code in expand mode (alias to `--mode expand`, requires
+    /// `cargo-expand` is installed)
+    #[structopt(long = "expand", group = "modegroup")]
+    pub expand: bool,
 
     #[structopt(short = "t", long = "toolchain", hidden = true)]
     pub toolchain: Option<String>,
