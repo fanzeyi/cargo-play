@@ -37,6 +37,7 @@ impl TestRuntime {
             "cargo-play-test.{}",
             thread_rng()
                 .sample_iter(&Alphanumeric)
+                .map(char::from)
                 .take(10)
                 .collect::<String>()
         )

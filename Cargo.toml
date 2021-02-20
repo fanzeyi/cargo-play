@@ -14,7 +14,7 @@ structopt = "0.3"
 failure = "0.1"
 toml = "0.5"
 sha1 = "0.6"
-bs58 = "0.3"
+bs58 = "0.4"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 pathdiff = "0.2"
@@ -23,7 +23,7 @@ syn = { version = "1.0", features = ["full"] }
 quote = "1.0"
 
 [dev-dependencies]
-rand = "0.7.0"
+rand = "0.8.0"
 
 [badges]
 travis-ci = { repository = "fanzeyi/cargo-play" }
