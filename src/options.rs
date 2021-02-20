@@ -52,28 +52,27 @@ pub struct Options {
     pub debug: bool,
 
     #[structopt(short = "c", long = "clean")]
-    /// Rebuild the cargo project without the cache from previous run
+    /// Rebuild the Cargo project without the cache from previous run
     pub clean: bool,
 
     #[structopt(
         short = "m",
         long = "mode",
         group = "modegroup",
-        possible_values = &["test", "check", "expand"]
     )]
-    /// Specify run mode
+    /// Specify subcommand to use when calling Cargo [default: run]
     pub mode: Option<String>,
 
-    /// Run code in test mode (alias to `--mode test`)
+    /// Run test code in your code (alias to `--mode test`)
     #[structopt(long = "test", group = "modegroup")]
     pub test: bool,
 
-    /// Run code in check mode (alias to `--mode check`)
+    /// Check errors in your code (alias to `--mode check`)
     #[structopt(long = "check", group = "modegroup")]
     pub check: bool,
 
-    /// Run code in expand mode (alias to `--mode expand`, requires
-    /// `cargo-expand` is installed)
+    /// Expand macro in your code (alias to `--mode expand`, requires
+    /// `cargo-expand`)
     #[structopt(long = "expand", group = "modegroup")]
     pub expand: bool,
 
@@ -117,14 +116,14 @@ pub struct Options {
     pub stdin: bool,
 
     #[structopt(long = "cargo-option")]
-    /// Custom flags passing to cargo
+    /// Customize flags passing to Cargo
     pub cargo_option: Option<String>,
 
     #[structopt(long = "save")]
     /// Generate a Cargo project based on inputs
     pub save: Option<PathBuf>,
 
-    /// [experimental] Automatically infers dependency
+    /// [experimental] Automatically infers crate dependency
     #[structopt(long = "infer", short = "i")]
     pub infer: bool,
 
