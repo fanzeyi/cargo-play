@@ -145,6 +145,7 @@ add this to your [micro](https://micro-editor.github.io/) `~/.config/micro/init.
 
 ```lua
 local config = import("micro/config")
+local shell = import("micro/shell")
 
 function init()
     config.TryBindKey("Alt-b", "lua:initlua.play", true)
