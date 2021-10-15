@@ -11,13 +11,16 @@ use crate::errors::CargoPlayError;
 pub enum RustEdition {
     E2015,
     E2018,
+    E2021
 }
 
 impl FromStr for RustEdition {
     type Err = CargoPlayError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s == "2018" {
+        if s == "2021" {
+            Ok(RustEdition::E2021)
+        } else if s == "2018" {
             Ok(RustEdition::E2018)
         } else if s == "2015" {
             Ok(RustEdition::E2015)
@@ -32,13 +35,14 @@ impl Into<String> for RustEdition {
         match self {
             RustEdition::E2015 => "2015".into(),
             RustEdition::E2018 => "2018".into(),
+            RustEdition::E2021 => "2021".into(),
         }
     }
 }
 
 impl Default for RustEdition {
     fn default() -> Self {
-        RustEdition::E2018
+        RustEdition::E2021
     }
 }
 
@@ -90,8 +94,8 @@ pub struct Options {
     #[structopt(
         short = "e",
         long = "edition",
-        default_value = "2018",
-        possible_values = &["2015", "2018"]
+        default_value = "2021",
+        possible_values = &["2015", "2018", "2021"]
     )]
     /// Specify Rust edition
     pub edition: RustEdition,
