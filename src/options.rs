@@ -11,7 +11,7 @@ use crate::errors::CargoPlayError;
 pub enum RustEdition {
     E2015,
     E2018,
-    E2021
+    E2021,
 }
 
 impl FromStr for RustEdition {
