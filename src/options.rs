@@ -3,6 +3,8 @@ use std::iter::FromIterator;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::vec::Vec;
+
+use sha1::Digest;
 use structopt::StructOpt;
 
 use crate::errors::CargoPlayError;
@@ -59,11 +61,7 @@ pub struct Options {
     /// Rebuild the Cargo project without the cache from previous run
     pub clean: bool,
 
-    #[structopt(
-        short = "m",
-        long = "mode",
-        group = "modegroup",
-    )]
+    #[structopt(short = "m", long = "mode", group = "modegroup")]
     /// Specify subcommand to use when calling Cargo [default: run]
     pub mode: Option<String>,
 
@@ -160,7 +158,7 @@ impl Options {
             hash.update(file.to_string_lossy().as_bytes());
         }
 
-        bs58::encode(hash.digest().bytes()).into_string()
+        bs58::encode(hash.finalize()).into_string()
     }
 
     pub fn temp_dirname(&self) -> PathBuf {

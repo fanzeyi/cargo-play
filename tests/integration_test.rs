@@ -280,7 +280,7 @@ fn infer_override() -> Result<()> {
 fn dtoa_test() -> Result<()> {
     let rt = TestRuntime::new()?;
     let output = rt.run(&["fixtures/dtoa.rs"])?;
-    assert_eq!(output.status.code().unwrap(), 0);
+    assert_eq!(dbg!(output).status.code().unwrap(), 0);
 
     Ok(())
 }
