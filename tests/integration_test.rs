@@ -152,8 +152,11 @@ fn clean() -> Result<()> {
 fn edition() -> Result<()> {
     let rt = TestRuntime::new()?;
 
-    // default edition is 2018
+    // default edition is 2021
     let output = rt.run(&["fixtures/edition.rs"])?;
+    assert_ne!(output.status.code().unwrap(), 0);
+
+    let output = rt.run(&["--edition", "2021", "fixtures/edition.rs"])?;
     assert_ne!(output.status.code().unwrap(), 0);
 
     let output = rt.run(&["--edition", "2018", "fixtures/edition.rs"])?;
