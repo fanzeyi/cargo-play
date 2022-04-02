@@ -1,0 +1,41 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "13:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: syn
+    versions:
+    - 1.0.41
+    - 1.0.62
+    - 1.0.67
+    - 1.0.68
+    - 1.0.70
+  - dependency-name: proc-macro2
+    versions:
+    - 1.0.24
+    - 1.0.26
+  - dependency-name: structopt
+    versions:
+    - 0.3.21
+  - dependency-name: serde
+    versions:
+    - 1.0.123
+  - dependency-name: quote
+    versions:
+    - 1.0.9
+  - dependency-name: bs58
+    versions:
+    - 0.4.0
+  - dependency-name: log
+    versions:
+    - 0.4.14
+  - dependency-name: toml
+    versions:
+    - 0.5.8
+  - dependency-name: rand
+    versions:
+    - 0.8.3
